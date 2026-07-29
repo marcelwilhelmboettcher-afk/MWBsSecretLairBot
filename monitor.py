@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Secret Lair Tracker (kostenlose Version, ohne API-Kosten)
@@ -22,6 +21,7 @@ immer den Link zur Originalquelle zum Gegenchecken.
 """
  
 import json
+import difflib
 import hashlib
 import os
 import re
@@ -324,6 +324,174 @@ def extract_with_rules(chunks: list) -> list:
 # Events zusammenfuehren
 # --------------------------------------------------------------------------
  
+def fetch_breakdown_links(html: str) -> list:
+    """Findet MTGStocks-'Value Breakdown'-Artikel auf der News-Seite."""
+    soup = BeautifulSoup(html, "html.parser")
+    results = []
+    seen_urls = set()
+    for a in soup.find_all("a", href=True):
+        text = a.get_text(" ", strip=True)
+        if "value breakdown" in text.lower() and "secret lair" in text.lower():
+            href = a["href"]
+            if href.startswith("/"):
+                href = "https://www.mtgstocks.com" + href
+            if href in seen_urls:
+                continue
+            seen_urls.add(href)
+            results.append({"title": text, "url": href})
+    return results
+
+
+def match_event_key(events: dict, breakdown_title: str):
+    """Ordnet einen MTGStocks-Breakdown-Titel einem bereits bekannten Secret-
+    Lair-Event zu (per Substring- bzw. Aehnlichkeits-Abgleich der Namen)."""
+    best_key, best_score = None, 0.0
+    norm_title = breakdown_title.lower()
+    for key, ev in events.items():
+        name = ev.get("name", "")
+        norm_name = re.sub(r"[™®]", "", name).lower().strip()
+        if not norm_name:
+            continue
+        if norm_name in norm_title:
+            return key
+        score = difflib.SequenceMatcher(None, norm_name, norm_title).ratio()
+        if score > best_score:
+            best_score, best_key = score, key
+    if best_score >= 0.55:
+        return best_key
+    return None
+
+
+def enrich_with_mtgstocks(events: dict) -> bool:
+    """Prueft MTGStocks auf neue Value-Breakdown-Artikel und ergaenzt
+    passende, bereits bekannte Events um den Link. Gibt True zurueck, falls
+    mindestens ein Event neu ergaenzt wurde."""
+    any_updated = False
+    try:
+        html = fetch("https://www.mtgstocks.com/news")
+    except Exception as e:
+        print(f"[MTGSTOCKS-FEHLER] Seite nicht erreichbar: {e}", file=sys.stderr)
+        return any_updated
+
+    breakdowns = fetch_breakdown_links(html)
+    for b in breakdowns:
+        key = match_event_key(events, b["title"])
+        if key and not events[key].get("mtgstocks_url"):
+            events[key]["mtgstocks_url"] = b["url"]
+            events[key]["last_updated"] = int(time.time())
+            any_updated = True
+            print(f"[MTGSTOCKS] Breakdown gefunden fuer: {events[key]['name']}")
+            msg = (
+                f"[UPDATE] <b>{events[key]['name']}</b>\n"
+                f"MTGStocks Value Breakdown ist da:\n{b['url']}"
+            )
+            send_telegram(msg)
+
+    return any_updated
+
+
+def match_event_by_ip(events: dict, title: str) -> list:
+    """Ordnet einen Mana-Value-Drop-Titel (z.B. 'Stardew Valley: Welcome to
+    Stardew Valley') per IP-Namen bekannten Events zu. Ein Event kann zu
+    mehreren Mana-Value-Eintraegen passen (z.B. bei Superdrops mit mehreren
+    Teil-Drops), daher wird eine Liste aller Treffer zurueckgegeben."""
+    norm_title = title.lower()
+    matches = []
+    for key, ev in events.items():
+        ip = (ev.get("ip") or "").strip()
+        if not ip or ip.lower() == "magic: the gathering":
+            continue
+        if ip.lower() in norm_title:
+            matches.append(key)
+    return matches
+
+
+def extract_manavalue_cards(html: str) -> list:
+    """Liest die Kartennamen aus dem Abschnitt 'Cards in this drop' einer
+    Mana-Value-Detailseite aus."""
+    soup = BeautifulSoup(html, "html.parser")
+    heading = None
+    for tag in soup.find_all(["h2", "h3"]):
+        if "cards in this drop" in tag.get_text(" ", strip=True).lower():
+            heading = tag
+            break
+    if not heading:
+        return []
+
+    cards = []
+    seen = set()
+    node = heading.find_next()
+    while node is not None and getattr(node, "name", None) not in ("h1", "h2", "h3"):
+        if getattr(node, "name", None) == "a":
+            raw = node.get_text(" ", strip=True)
+            raw = re.sub(r"\$\d+(?:\.\d+)?", "", raw).strip()
+            # Falls Name+Preis-Text den Kartennamen doppelt enthaelt (z.B. durch
+            # Bild-Alt-Text): "Wedding Ring Wedding Ring" -> "Wedding Ring"
+            half = len(raw) // 2
+            if len(raw) % 2 == 0 and raw[:half].strip() and raw[:half].strip() == raw[half:].strip():
+                raw = raw[:half].strip()
+            if raw and raw not in seen:
+                seen.add(raw)
+                cards.append(raw)
+        node = node.find_next()
+    return cards
+
+
+def enrich_with_manavalue(events: dict) -> bool:
+    """Prueft den Mana-Value-RSS-Feed (europaeische Cardmarket-Preise) auf
+    neue Drops und ergaenzt passende, bereits bekannte Events um Link(s) und
+    Kartenliste(n). Ein Event kann mehrere Mana-Value-Eintraege bekommen,
+    wenn es (wie ein Superdrop) aus mehreren Teil-Drops besteht."""
+    any_updated = False
+    try:
+        feed_xml = fetch("https://www.manavalue.org/feed.xml")
+    except Exception as e:
+        print(f"[MANAVALUE-FEHLER] Feed nicht erreichbar: {e}", file=sys.stderr)
+        return any_updated
+
+    items = extract_chunks_from_rss(feed_xml)
+
+    for item in items:
+        title = item["title"]
+        if not title:
+            continue
+        matched_keys = match_event_by_ip(events, title)
+        if not matched_keys:
+            continue
+
+        slug = slugify(title)
+        detail_url = f"https://www.manavalue.org/secret-lair/{slug}"
+
+        for key in matched_keys:
+            existing_entries = events[key].setdefault("manavalue_drops", [])
+            if any(e.get("url") == detail_url for e in existing_entries):
+                continue  # schon erfasst
+
+            try:
+                detail_html = fetch(detail_url)
+            except Exception as e:
+                print(f"[MANAVALUE-FEHLER] {detail_url}: {e}", file=sys.stderr)
+                continue
+
+            cards = extract_manavalue_cards(detail_html)
+            existing_entries.append({
+                "title": title,
+                "url": detail_url,
+                "cards": cards,
+            })
+            events[key]["last_updated"] = int(time.time())
+            any_updated = True
+            print(f"[MANAVALUE] Gefunden fuer {events[key]['name']}: {title} ({len(cards)} Karten)")
+
+            msg = (
+                f"[UPDATE] <b>{events[key]['name']}</b>\n"
+                f"Mana Value (EUR/Cardmarket) verfuegbar fuer '{title}':\n{detail_url}"
+            )
+            send_telegram(msg)
+
+    return any_updated
+
+
 def slugify(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
  
@@ -398,8 +566,22 @@ def build_ics(events: dict) -> str:
         dt = date.replace("-", "")
  
         price = f"${ev['price_usd']}" if ev.get("price_usd") else "Preis unbekannt (Link pruefen)"
-        cards = ev.get("cards") or "Karten nicht automatisch erkannt - bitte Quelle pruefen"
+
+        manavalue_drops = ev.get("manavalue_drops") or []
+        manavalue_cards = []
+        for md in manavalue_drops:
+            manavalue_cards.extend(md.get("cards") or [])
+
+        if manavalue_cards:
+            cards = ", ".join(manavalue_cards)
+        else:
+            cards = ev.get("cards") or "Karten nicht automatisch erkannt - bitte Quelle pruefen"
+
         desc = f"IP: {ev.get('ip')}\\nPreis: {price}\\nKarten: {cards}\\nQuelle: {ev.get('source_url')}"
+        if ev.get("mtgstocks_url"):
+            desc += f"\\nMTGStocks Value Breakdown: {ev['mtgstocks_url']}"
+        for md in manavalue_drops:
+            desc += f"\\nMana Value ({escape_ics(md['title'])}): {md['url']}"
  
         uid = f"{key}@secret-lair-tracker"
         lines += [
@@ -474,7 +656,13 @@ def main() -> None:
                 f"{record.get('source_url')}"
             )
             send_telegram(msg)
- 
+
+    if enrich_with_mtgstocks(events):
+        any_new = True
+
+    if enrich_with_manavalue(events):
+        any_new = True
+
     save_json(state_path, state)
     save_json(events_path, events)
  
@@ -488,4 +676,3 @@ def main() -> None:
  
 if __name__ == "__main__":
     main()
- 
