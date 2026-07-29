@@ -28,7 +28,9 @@ import re
 import sys
 import time
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
  
 import requests
 from bs4 import BeautifulSoup
@@ -92,6 +94,9 @@ Jedes Element im Array muss folgende Felder haben:
   sonst null.
 - "release_date_text": Das Datum/die Zeitangabe genau so, wie sie im Originaltext steht (z.B.
   "September 2026" oder "10.08."), sonst null.
+- "release_time_text": Falls im Text eine KONKRETE Uhrzeit fuer den Verkaufsstart genannt wird
+  (z.B. "9 a.m. PT", "Noon EDT", "9:00 AM Pacific Time"), gib sie moeglichst genau wieder,
+  inklusive Zeitzonen-Kuerzel. Sonst null. Erfinde NIEMALS eine Uhrzeit, die nicht im Text steht.
 - "summary": Ein bis zwei Saetze Zusammenfassung auf Deutsch, max. 200 Zeichen.
  
 Gib AUSSCHLIESSLICH das JSON-Array zurueck, keinen weiteren Text, keine Markdown-Codebloecke.
@@ -167,6 +172,7 @@ def extract_with_ai(chunks: list, source_name: str) -> list:
             "price_usd": price,
             "release_date": item.get("release_date"),
             "release_date_text": item.get("release_date_text"),
+            "release_time_text": item.get("release_time_text"),
             "summary": item.get("summary"),
         })
     return results
@@ -301,6 +307,53 @@ def find_date(text: str):
     return None, raw
  
  
+US_TIMEZONE_ALIASES = {
+    "PT": "America/Los_Angeles", "PST": "America/Los_Angeles", "PDT": "America/Los_Angeles",
+    "ET": "America/New_York", "EST": "America/New_York", "EDT": "America/New_York",
+    "CT": "America/Chicago", "CST": "America/Chicago", "CDT": "America/Chicago",
+    "MT": "America/Denver", "MST": "America/Denver", "MDT": "America/Denver",
+}
+
+
+def parse_release_datetime_utc(release_date: str, time_text: str):
+    """Versucht, aus einem Datum (YYYY-MM-DD) und einer Freitext-Uhrzeit wie
+    '9 a.m. PT' oder 'Noon EDT' einen exakten UTC-Zeitpunkt zu berechnen
+    (inkl. korrekter Sommerzeit-Behandlung). Gibt None zurueck, wenn Datum
+    oder Uhrzeit fehlen oder nicht eindeutig erkennbar sind - dann bleibt der
+    Kalendereintrag ein ganztaegiger Termin ohne Minuten-genaue Erinnerung."""
+    if not release_date or not time_text:
+        return None
+
+    tz_match = re.search(r"\b(PT|PST|PDT|ET|EST|EDT|CT|CST|CDT|MT|MST|MDT)\b", time_text, re.IGNORECASE)
+    if not tz_match:
+        return None
+    tz_name = US_TIMEZONE_ALIASES.get(tz_match.group(1).upper())
+    if not tz_name:
+        return None
+
+    text_lower = time_text.lower()
+    if "noon" in text_lower:
+        hour, minute = 12, 0
+    else:
+        time_match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\.?", time_text, re.IGNORECASE)
+        if not time_match:
+            return None
+        hour = int(time_match.group(1))
+        minute = int(time_match.group(2) or 0)
+        if time_match.group(3).lower() == "p" and hour != 12:
+            hour += 12
+        if time_match.group(3).lower() == "a" and hour == 12:
+            hour = 0
+
+    try:
+        y, m, d = (int(x) for x in release_date.split("-"))
+        local_dt = datetime(y, m, d, hour, minute, tzinfo=ZoneInfo(tz_name))
+        return local_dt.astimezone(timezone.utc)
+    except Exception as e:
+        print(f"[ZEIT-FEHLER] Konnte Release-Zeit nicht umrechnen: {e}", file=sys.stderr)
+        return None
+
+
 def extract_with_rules(chunks: list) -> list:
     results = []
     for chunk in chunks:
@@ -437,6 +490,62 @@ def extract_manavalue_cards(html: str) -> list:
     return cards
 
 
+def fetch_scryfall_card_info(card_name: str) -> dict:
+    """Fragt die kostenlose Scryfall-API einmalig pro Karte ab und liefert
+    sowohl den Secret-Lair-Sondernamen (z.B. 'Wedding Ring' -> 'Mermaid's
+    Pendant', falls vorhanden) als auch den aktuellen Cardmarket-EUR-Preis
+    (Scryfall bezieht EUR-Preise offiziell von Cardmarket). Gibt ein leeres
+    dict zurueck, wenn die Karte nicht gefunden wird oder ein Fehler
+    auftritt - der Aufrufer behandelt das als 'keine Zusatzinfo verfuegbar'."""
+    query = f'!"{card_name}" set:sld'
+    try:
+        resp = requests.get(
+            "https://api.scryfall.com/cards/search",
+            params={"q": query, "unique": "prints"},
+            headers=HEADERS,
+            timeout=15,
+        )
+        if resp.status_code == 404:
+            return {}
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
+        return {}
+
+    candidates = data.get("data", [])
+    if not candidates:
+        return {}
+    candidates.sort(key=lambda c: c.get("released_at") or "", reverse=True)
+    newest = candidates[0]
+
+    flavor_candidates = [c for c in candidates if c.get("flavor_name")]
+    flavor_name = flavor_candidates[0]["flavor_name"] if flavor_candidates else None
+
+    eur_str = (newest.get("prices") or {}).get("eur")
+    try:
+        eur_price = float(eur_str) if eur_str else None
+    except (TypeError, ValueError):
+        eur_price = None
+
+    eur_foil_str = (newest.get("prices") or {}).get("eur_foil")
+    try:
+        eur_foil_price = float(eur_foil_str) if eur_foil_str else None
+    except (TypeError, ValueError):
+        eur_foil_price = None
+
+    return {"flavor_name": flavor_name, "eur_price": eur_price, "eur_foil_price": eur_foil_price}
+
+
+def format_card_name(real_name: str, info: dict) -> str:
+    """Ergaenzt einen Kartennamen um den Secret-Lair-Sondernamen (falls
+    vorhanden), z.B. 'Wedding Ring (\"Mermaid's Pendant\" im Secret Lair)'."""
+    flavor_name = info.get("flavor_name")
+    if flavor_name and flavor_name != real_name:
+        return f'{real_name} ("{flavor_name}" im Secret Lair)'
+    return real_name
+
+
 def enrich_with_manavalue(events: dict) -> bool:
     """Prueft den Mana-Value-RSS-Feed (europaeische Cardmarket-Preise) auf
     neue Drops und ergaenzt passende, bereits bekannte Events um Link(s) und
@@ -473,15 +582,33 @@ def enrich_with_manavalue(events: dict) -> bool:
                 print(f"[MANAVALUE-FEHLER] {detail_url}: {e}", file=sys.stderr)
                 continue
 
-            cards = extract_manavalue_cards(detail_html)
+            cards_raw = extract_manavalue_cards(detail_html)
+            cards_display = []
+            cardmarket_total_nonfoil = 0.0
+            cardmarket_total_foil = 0.0
+            nonfoil_known = False
+            foil_known = False
+            for c in cards_raw:
+                info = fetch_scryfall_card_info(c)
+                time.sleep(0.1)  # Scryfall bittet um max. ca. 10 Anfragen/Sekunde
+                cards_display.append(format_card_name(c, info))
+                if info.get("eur_price") is not None:
+                    cardmarket_total_nonfoil += info["eur_price"]
+                    nonfoil_known = True
+                if info.get("eur_foil_price") is not None:
+                    cardmarket_total_foil += info["eur_foil_price"]
+                    foil_known = True
+
             existing_entries.append({
                 "title": title,
                 "url": detail_url,
-                "cards": cards,
+                "cards": cards_display,
+                "cardmarket_eur_total": round(cardmarket_total_nonfoil, 2) if nonfoil_known else None,
+                "cardmarket_eur_total_foil": round(cardmarket_total_foil, 2) if foil_known else None,
             })
             events[key]["last_updated"] = int(time.time())
             any_updated = True
-            print(f"[MANAVALUE] Gefunden fuer {events[key]['name']}: {title} ({len(cards)} Karten)")
+            print(f"[MANAVALUE] Gefunden fuer {events[key]['name']}: {title} ({len(cards_display)} Karten)")
 
             msg = (
                 f"[UPDATE] <b>{events[key]['name']}</b>\n"
@@ -504,34 +631,44 @@ def merge_events(events: dict, extracted: list, source_name: str, source_url: st
             continue
         key = slugify(name)
         existing = events.get(key)
- 
-        record = {
+
+        # Mit einer Kopie des bestehenden Eintrags starten (statt komplett
+        # neu), damit Zusatzfelder wie mtgstocks_url/manavalue_drops bei
+        # einer erneuten Aenderung der Quellseite nicht verloren gehen.
+        record = dict(existing) if existing else {}
+        record.update({
             "name": name,
             "ip": item.get("ip") or "Magic: The Gathering",
             "cards": item.get("cards"),
             "price_usd": item.get("price_usd"),
             "release_date": item.get("release_date"),
             "release_date_text": item.get("release_date_text"),
+            "release_time_text": item.get("release_time_text"),
             "summary": item.get("summary"),
             "source_name": source_name,
             "source_url": source_url,
             "first_seen": existing["first_seen"] if existing else int(time.time()),
             "last_updated": int(time.time()),
-        }
- 
-        relevant_fields = ("price_usd", "release_date", "release_date_text")
+        })
+
+        release_dt_utc = parse_release_datetime_utc(
+            record.get("release_date"), record.get("release_time_text")
+        )
+        record["release_datetime_utc"] = release_dt_utc.isoformat() if release_dt_utc else None
+
+        relevant_fields = ("price_usd", "release_date", "release_date_text", "release_time_text")
         is_new = existing is None
         is_updated = existing is not None and any(
             existing.get(f) != record.get(f) for f in relevant_fields
         )
- 
+
         events[key] = record
         if is_new or is_updated:
             changed.append((record, is_new))
- 
+
     return changed
- 
- 
+
+
 # --------------------------------------------------------------------------
 # iCalendar-Feed erzeugen
 # --------------------------------------------------------------------------
@@ -563,8 +700,28 @@ def build_ics(events: dict) -> str:
         date = ev.get("release_date")
         if not date:
             continue
-        dt = date.replace("-", "")
- 
+
+        # Falls eine exakte Uhrzeit bekannt ist (von Gemini erkannt und nach
+        # UTC umgerechnet), wird ein zeitgenauer Termin mit Erinnerungen
+        # erzeugt. Ohne Uhrzeit bleibt es ein ganztaegiger Termin ohne
+        # minutengenaue Erinnerung (bei einem reinen Datum waere "30 Minuten
+        # vorher" nicht sinnvoll definierbar).
+        release_dt_utc_str = ev.get("release_datetime_utc")
+        has_precise_time = False
+        if release_dt_utc_str:
+            try:
+                dt_utc = datetime.fromisoformat(release_dt_utc_str)
+                dtstart_line = f"DTSTART:{dt_utc.strftime('%Y%m%dT%H%M%SZ')}"
+                dtend_utc = dt_utc + timedelta(hours=1)
+                dtend_line = f"DTEND:{dtend_utc.strftime('%Y%m%dT%H%M%SZ')}"
+                has_precise_time = True
+            except (ValueError, TypeError):
+                has_precise_time = False
+        if not has_precise_time:
+            dt = date.replace("-", "")
+            dtstart_line = f"DTSTART;VALUE=DATE:{dt}"
+            dtend_line = None
+
         price = f"${ev['price_usd']}" if ev.get("price_usd") else "Preis unbekannt (Link pruefen)"
 
         manavalue_drops = ev.get("manavalue_drops") or []
@@ -580,6 +737,17 @@ def build_ics(events: dict) -> str:
         desc = f"IP: {ev.get('ip')}\\nPreis: {price}\\nKarten: {cards}\\nQuelle: {ev.get('source_url')}"
         if ev.get("mtgstocks_url"):
             desc += f"\\nMTGStocks Value Breakdown: {ev['mtgstocks_url']}"
+
+        cardmarket_nonfoil_totals = [md.get("cardmarket_eur_total") for md in manavalue_drops if md.get("cardmarket_eur_total") is not None]
+        cardmarket_foil_totals = [md.get("cardmarket_eur_total_foil") for md in manavalue_drops if md.get("cardmarket_eur_total_foil") is not None]
+        if cardmarket_nonfoil_totals or cardmarket_foil_totals:
+            parts = []
+            if cardmarket_nonfoil_totals:
+                parts.append(f"{sum(cardmarket_nonfoil_totals):.2f} EUR Non-Foil")
+            if cardmarket_foil_totals:
+                parts.append(f"{sum(cardmarket_foil_totals):.2f} EUR Foil")
+            desc += f"\\nCardmarket-Wert (Singles gesamt, ca.): {' / '.join(parts)}"
+
         for md in manavalue_drops:
             desc += f"\\nMana Value ({escape_ics(md['title'])}): {md['url']}"
  
@@ -588,12 +756,29 @@ def build_ics(events: dict) -> str:
             "BEGIN:VEVENT",
             f"UID:{uid}",
             f"DTSTAMP:{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}",
-            f"DTSTART;VALUE=DATE:{dt}",
+            dtstart_line,
+        ]
+        if dtend_line:
+            lines.append(dtend_line)
+        lines += [
             f"SUMMARY:{escape_ics('Secret Lair: ' + ev['name'])}",
             f"DESCRIPTION:{desc}",
             f"URL:{ev.get('source_url', '')}",
-            "END:VEVENT",
         ]
+        if has_precise_time:
+            lines += [
+                "BEGIN:VALARM",
+                "ACTION:DISPLAY",
+                "DESCRIPTION:Secret Lair Drop startet in 30 Minuten",
+                "TRIGGER:-PT30M",
+                "END:VALARM",
+                "BEGIN:VALARM",
+                "ACTION:DISPLAY",
+                "DESCRIPTION:Secret Lair Drop startet in 15 Minuten",
+                "TRIGGER:-PT15M",
+                "END:VALARM",
+            ]
+        lines.append("END:VEVENT")
  
     lines.append("END:VCALENDAR")
     return "\r\n".join(lines) + "\r\n"
