@@ -1,4 +1,4 @@
-- name: Ergebnisse committen (state.json, secret_lairs.json, calendar.ics)
+        - name: Ergebnisse committen (state.json, secret_lairs.json, calendar.ics)
         run: |
           git config user.name "secret-lair-tracker-bot"
           git config user.email "actions@users.noreply.github.com"
