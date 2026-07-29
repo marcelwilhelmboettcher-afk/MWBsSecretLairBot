@@ -22,29 +22,6 @@
       "source_type": "official"
     },
     {
-  "state_file": "state.json",
-  "events_file": "secret_lairs.json",
-  "ics_output": "docs/calendar.ics",
-  "watches": [
-    {
-      "name": "Secret Lair – Drop Series (offizieller Store)",
-      "url": "https://secretlair.wizards.com/us/en/drop-series",
-      "selector": "main",
-      "source_type": "official"
-    },
-    {
-      "name": "Secret Lair – Chaos Vault (offizieller Store)",
-      "url": "https://secretlair.wizards.com/us/en/chaosvault",
-      "selector": "main",
-      "source_type": "official"
-    },
-    {
-      "name": "MTG Wizards News – Ankündigungen",
-      "url": "https://magic.wizards.com/en/news/announcements",
-      "selector": "main",
-      "source_type": "official"
-    },
-    {
       "name": "ICv2 – Branchen-News (RSS, oft vor der offiziellen Ankündigung)",
       "url": "https://icv2.com/rss",
       "type": "rss",
@@ -52,7 +29,4 @@
     }
   ],
   "notes": "Weitere Quellen kannst du einfach als zusätzliche Objekte in 'watches' ergänzen. 'selector' ist ein CSS-Selektor für den Hauptinhaltsbereich (nur für HTML-Quellen relevant); passe ihn an, falls die Seite sich strukturell ändert. 'type': 'rss' kennzeichnet RSS-Feed-Quellen, die anders geparst werden als normale HTML-Seiten."
-}
-  ],
-  "notes": "Weitere Quellen kannst du einfach als zusätzliche Objekte in 'watches' ergänzen. 'selector' ist ein CSS-Selektor für den Hauptinhaltsbereich; passe ihn an, falls die Seite sich strukturell ändert."
 }
