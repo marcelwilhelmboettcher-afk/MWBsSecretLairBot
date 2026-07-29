@@ -490,49 +490,76 @@ def extract_manavalue_cards(html: str) -> list:
     return cards
 
 
-def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
-    """Fragt die kostenlose Scryfall-API einmalig pro Karte ab und liefert
-    sowohl den Secret-Lair-Sondernamen (z.B. 'Wedding Ring' -> 'Mermaid's
-    Pendant', falls vorhanden) als auch den aktuellen Cardmarket-EUR-Preis
-    (Scryfall bezieht EUR-Preise offiziell von Cardmarket). Gibt ein leeres
-    dict zurueck, wenn die Karte nicht gefunden wird oder ein Fehler
-    auftritt - der Aufrufer behandelt das als 'keine Zusatzinfo verfuegbar'.
-    Bei einem 429 (Rate-Limit) oder einem voruebergehenden Verbindungsfehler
-    wird automatisch mit kurzer Wartezeit wiederholt."""
-    query = f'!"{card_name}" set:sld'
-    data = None
+def _scryfall_search(query: str, extra_params: dict = None, max_retries: int = 3):
+    """Fuehrt eine Scryfall-Suche aus, inkl. Retry bei 429/Verbindungsfehlern.
+    Gibt die geparste JSON-Antwort zurueck oder None bei 404/endgueltigem
+    Fehler."""
+    params = {"q": query, "unique": "prints"}
+    if extra_params:
+        params.update(extra_params)
+
     for attempt in range(max_retries + 1):
         try:
             resp = requests.get(
                 "https://api.scryfall.com/cards/search",
-                params={"q": query, "unique": "prints"},
+                params=params,
                 headers=HEADERS,
                 timeout=15,
             )
             if resp.status_code == 404:
-                return {}
+                return None
             if resp.status_code == 429:
                 wait_s = float(resp.headers.get("Retry-After", 1.5))
-                print(f"[SCRYFALL] Rate-Limit fuer '{card_name}', warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                print(f"[SCRYFALL] Rate-Limit ('{query}'), warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
                 time.sleep(wait_s)
                 continue
             resp.raise_for_status()
-            data = resp.json()
-            break
+            return resp.json()
         except requests.exceptions.RequestException as e:
             if attempt < max_retries:
                 wait_s = 1.0 * (attempt + 1)
-                print(f"[SCRYFALL] Verbindungsfehler fuer '{card_name}' ({e}), warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                print(f"[SCRYFALL] Verbindungsfehler ('{query}': {e}), warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
                 time.sleep(wait_s)
                 continue
-            print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
-            return {}
+            print(f"[SCRYFALL-FEHLER] {query}: {e}", file=sys.stderr)
+            return None
         except Exception as e:
-            print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
-            return {}
+            print(f"[SCRYFALL-FEHLER] {query}: {e}", file=sys.stderr)
+            return None
 
-    if data is None:
-        print(f"[SCRYFALL-FEHLER] {card_name}: nach {max_retries} Wiederholungen weiterhin nicht erreichbar", file=sys.stderr)
+    print(f"[SCRYFALL-FEHLER] {query}: nach {max_retries} Wiederholungen weiterhin nicht erreichbar", file=sys.stderr)
+    return None
+
+
+def _extract_eur_prices(card_obj: dict):
+    prices = card_obj.get("prices") or {}
+    eur_str = prices.get("eur")
+    eur_foil_str = prices.get("eur_foil")
+    try:
+        eur_price = float(eur_str) if eur_str else None
+    except (TypeError, ValueError):
+        eur_price = None
+    try:
+        eur_foil_price = float(eur_foil_str) if eur_foil_str else None
+    except (TypeError, ValueError):
+        eur_foil_price = None
+    return eur_price, eur_foil_price
+
+
+def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
+    """Fragt die kostenlose Scryfall-API pro Karte ab und liefert sowohl den
+    Secret-Lair-Sondernamen (z.B. 'Wedding Ring' -> 'Mermaid's Pendant',
+    falls vorhanden) als auch den aktuellen Cardmarket-EUR-Preis (Scryfall
+    bezieht EUR-Preise offiziell von Cardmarket).
+
+    Falls die konkrete Secret-Lair-Auflage noch keinen Preis hat (z.B. weil
+    der Drop noch nicht erschienen ist), wird ersatzweise die guenstigste
+    verfuegbare Auflage derselben Karte ueber alle Sets hinweg herangezogen -
+    das Ergebnis wird dann als Schaetzwert (eur_is_estimate=True) markiert.
+
+    Gibt ein leeres dict zurueck, wenn die Karte gar nicht gefunden wird."""
+    data = _scryfall_search(f'!"{card_name}" set:sld', max_retries=max_retries)
+    if not data:
         return {}
 
     candidates = data.get("data", [])
@@ -544,19 +571,28 @@ def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
     flavor_candidates = [c for c in candidates if c.get("flavor_name")]
     flavor_name = flavor_candidates[0]["flavor_name"] if flavor_candidates else None
 
-    eur_str = (newest.get("prices") or {}).get("eur")
-    try:
-        eur_price = float(eur_str) if eur_str else None
-    except (TypeError, ValueError):
-        eur_price = None
+    eur_price, eur_foil_price = _extract_eur_prices(newest)
+    eur_is_estimate = False
 
-    eur_foil_str = (newest.get("prices") or {}).get("eur_foil")
-    try:
-        eur_foil_price = float(eur_foil_str) if eur_foil_str else None
-    except (TypeError, ValueError):
-        eur_foil_price = None
+    if eur_price is None and eur_foil_price is None:
+        fallback_data = _scryfall_search(
+            f'!"{card_name}"',
+            extra_params={"order": "eur", "dir": "asc"},
+            max_retries=max_retries,
+        )
+        if fallback_data:
+            priced = [c for c in fallback_data.get("data", []) if (c.get("prices") or {}).get("eur")]
+            if priced:
+                cheapest = priced[0]
+                eur_price, eur_foil_price = _extract_eur_prices(cheapest)
+                eur_is_estimate = True
 
-    return {"flavor_name": flavor_name, "eur_price": eur_price, "eur_foil_price": eur_foil_price}
+    return {
+        "flavor_name": flavor_name,
+        "eur_price": eur_price,
+        "eur_foil_price": eur_foil_price,
+        "eur_is_estimate": eur_is_estimate,
+    }
 
 
 def format_card_name(real_name: str, info: dict) -> str:
@@ -610,6 +646,7 @@ def enrich_with_manavalue(events: dict) -> bool:
             cardmarket_total_foil = 0.0
             nonfoil_known = False
             foil_known = False
+            any_estimate = False
             for c in cards_raw:
                 info = fetch_scryfall_card_info(c)
                 time.sleep(0.15)  # etwas Sicherheitsabstand unter Scryfalls ca. 10 Anfragen/Sekunde
@@ -620,6 +657,8 @@ def enrich_with_manavalue(events: dict) -> bool:
                 if info.get("eur_foil_price") is not None:
                     cardmarket_total_foil += info["eur_foil_price"]
                     foil_known = True
+                if info.get("eur_is_estimate"):
+                    any_estimate = True
 
             existing_entries.append({
                 "title": title,
@@ -627,6 +666,7 @@ def enrich_with_manavalue(events: dict) -> bool:
                 "cards": cards_display,
                 "cardmarket_eur_total": round(cardmarket_total_nonfoil, 2) if nonfoil_known else None,
                 "cardmarket_eur_total_foil": round(cardmarket_total_foil, 2) if foil_known else None,
+                "cardmarket_has_estimate": any_estimate,
             })
             events[key]["last_updated"] = int(time.time())
             any_updated = True
@@ -762,13 +802,17 @@ def build_ics(events: dict) -> str:
 
         cardmarket_nonfoil_totals = [md.get("cardmarket_eur_total") for md in manavalue_drops if md.get("cardmarket_eur_total") is not None]
         cardmarket_foil_totals = [md.get("cardmarket_eur_total_foil") for md in manavalue_drops if md.get("cardmarket_eur_total_foil") is not None]
+        any_estimate = any(md.get("cardmarket_has_estimate") for md in manavalue_drops)
         if cardmarket_nonfoil_totals or cardmarket_foil_totals:
             parts = []
             if cardmarket_nonfoil_totals:
                 parts.append(f"{sum(cardmarket_nonfoil_totals):.2f} EUR Non-Foil")
             if cardmarket_foil_totals:
                 parts.append(f"{sum(cardmarket_foil_totals):.2f} EUR Foil")
-            desc += f"\\nCardmarket-Wert (Singles gesamt, ca.): {' / '.join(parts)}"
+            label = "Cardmarket-Wert (Singles gesamt, ca.)"
+            if any_estimate:
+                label += " - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet"
+            desc += f"\\n{label}: {' / '.join(parts)}"
 
         for md in manavalue_drops:
             desc += f"\\nMana Value ({escape_ics(md['title'])}): {md['url']}"
