@@ -1,5 +1,4 @@
 
-Monitor · PY
 #!/usr/bin/env python3
 """
 Secret Lair Tracker (kostenlose Version, ohne API-Kosten)
