@@ -1,4 +1,4 @@
-        - name: Ergebnisse committen (state.json, secret_lairs.json, calendar.ics)
+      - name: Ergebnisse committen (state.json, secret_lairs.json, calendar.ics)
         run: |
           git config user.name "secret-lair-tracker-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -29,3 +29,21 @@
             mkdir -p docs
             cp /tmp/calendar.ics docs/calendar.ics
           done
+
+Zu deiner Frage: Nein, Bot-Name und E-Mail müssen nicht "echt" oder irgendwo registriert sein. Das sind reine Metadaten für den Git-Commit (wer steht als Autor im Log) – GitHub prüft nicht, ob dieser Name/diese Adresse existiert. "secret-lair-tracker-bot" und "actions@users.noreply.github.com" funktionieren ohne weitere Einrichtung, das war schon vorher in eurem Workflow so und ist unverändert geblieben.
+
+Nochmal zum Einfügen: Lösch den alten letzten Schritt komplett, klick in eine leere Zeile ganz links (keine Einrückung), und füge den Block oben ein. Falls dein Editor die Einrückung trotzdem verschiebt, sag mir kurz, wie viele Leerzeichen bei - name: und run: jeweils tatsächlich stehen (du kannst das mit den Pfeiltasten/Cursor abzählen), dann justieren wir das gezielt.
+
+Zeile 1 immernoch falshc
+
+Diagnosed file corruption and requested complete configuration review
+Diagnosed file corruption and requested complete configuration review
+
+Lass uns das jetzt zuverlässig lösen, statt weiter zu raten – ich brauche dafür den kompletten aktuellen Inhalt deiner monitor.yml, so wie er gerade wirklich im Editor steht (wahrscheinlich ist beim Einfügen versehentlich der Anfang der Datei überschrieben oder verschoben worden).
+
+Kannst du bitte:
+
+Im Editor Strg+A (bzw. Cmd+A) drücken, um alles zu markieren
+Kopieren und hier komplett einfügen
+
+Dann sehe ich exakt, was in Zeile 1 steht und wie die Datei aktuell aussieht, und kann dir die korrekte Version zum 1:1-Ersetzen geben – dieses Mal ohne Rätselraten.
