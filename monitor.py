@@ -490,27 +490,40 @@ def extract_manavalue_cards(html: str) -> list:
     return cards
 
 
-def fetch_scryfall_card_info(card_name: str) -> dict:
+def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
     """Fragt die kostenlose Scryfall-API einmalig pro Karte ab und liefert
     sowohl den Secret-Lair-Sondernamen (z.B. 'Wedding Ring' -> 'Mermaid's
     Pendant', falls vorhanden) als auch den aktuellen Cardmarket-EUR-Preis
     (Scryfall bezieht EUR-Preise offiziell von Cardmarket). Gibt ein leeres
     dict zurueck, wenn die Karte nicht gefunden wird oder ein Fehler
-    auftritt - der Aufrufer behandelt das als 'keine Zusatzinfo verfuegbar'."""
+    auftritt - der Aufrufer behandelt das als 'keine Zusatzinfo verfuegbar'.
+    Bei einem 429 (Rate-Limit) wird automatisch mit Wartezeit wiederholt."""
     query = f'!"{card_name}" set:sld'
-    try:
-        resp = requests.get(
-            "https://api.scryfall.com/cards/search",
-            params={"q": query, "unique": "prints"},
-            headers=HEADERS,
-            timeout=15,
-        )
-        if resp.status_code == 404:
+    data = None
+    for attempt in range(max_retries + 1):
+        try:
+            resp = requests.get(
+                "https://api.scryfall.com/cards/search",
+                params={"q": query, "unique": "prints"},
+                headers=HEADERS,
+                timeout=15,
+            )
+            if resp.status_code == 404:
+                return {}
+            if resp.status_code == 429:
+                wait_s = float(resp.headers.get("Retry-After", 1.5))
+                print(f"[SCRYFALL] Rate-Limit fuer '{card_name}', warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                time.sleep(wait_s)
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        except Exception as e:
+            print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
             return {}
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
+
+    if data is None:
+        print(f"[SCRYFALL-FEHLER] {card_name}: Rate-Limit auch nach {max_retries} Wiederholungen nicht geloest", file=sys.stderr)
         return {}
 
     candidates = data.get("data", [])
@@ -590,7 +603,7 @@ def enrich_with_manavalue(events: dict) -> bool:
             foil_known = False
             for c in cards_raw:
                 info = fetch_scryfall_card_info(c)
-                time.sleep(0.1)  # Scryfall bittet um max. ca. 10 Anfragen/Sekunde
+                time.sleep(0.15)  # etwas Sicherheitsabstand unter Scryfalls ca. 10 Anfragen/Sekunde
                 cards_display.append(format_card_name(c, info))
                 if info.get("eur_price") is not None:
                     cardmarket_total_nonfoil += info["eur_price"]
