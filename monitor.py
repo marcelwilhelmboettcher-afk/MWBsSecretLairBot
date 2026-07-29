@@ -69,7 +69,105 @@ DATE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 PRICE_PATTERN = re.compile(r"\$\s?(\d{1,4}(?:\.\d{2})?)")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
+GEMINI_PROMPT_TEMPLATE = """Du bekommst Textabschnitte von einer Magic: The Gathering Secret-Lair-Ankuendigungsseite.
+Extrahiere ALLE einzelnen Secret-Lair-Drops, die in diesen Abschnitten beschrieben werden, als JSON-Array.
+
+Jedes Element im Array muss folgende Felder haben:
+- "name": Name des Drops, ohne das Praefix "Secret Lair" oder "Secret Lair Drop"
+- "ip": Die zugehoerige Crossover-IP/Franchise (z.B. "Marvel", "Lord of the Rings", "Final Fantasy").
+  WICHTIG: Nur die IP eintragen, wenn der Drop wirklich zu dieser Franchise gehoert - nicht bei
+  zufaelligen Wortaehnlichkeiten (Beispiel: "A Marvelous Mathoms Superdrop" ist KEIN Marvel-Drop,
+  sondern ein Hobbit/Der-Herr-der-Ringe-Drop; "Marvelous" ist hier nur ein normales Adjektiv).
+  Wenn keine erkennbare Crossover-IP vorliegt, nutze "Magic: The Gathering".
+- "cards": Kurze Liste/Beschreibung der enthaltenen Karten oder Motive, falls im Text erwaehnt,
+  sonst null.
+- "price_usd": Preis in US-Dollar als Zahl (ohne Dollarzeichen), sonst null.
+- "release_date": Erscheinungsdatum im Format YYYY-MM-DD, falls ein konkretes Datum genannt wird,
+  sonst null.
+- "release_date_text": Das Datum/die Zeitangabe genau so, wie sie im Originaltext steht (z.B.
+  "September 2026" oder "10.08."), sonst null.
+- "summary": Ein bis zwei Saetze Zusammenfassung auf Deutsch, max. 200 Zeichen.
+
+Gib AUSSCHLIESSLICH das JSON-Array zurueck, keinen weiteren Text, keine Markdown-Codebloecke.
+Wenn kein echter Secret-Lair-Drop im Text zu finden ist, gib ein leeres Array [] zurueck.
+
+TEXTABSCHNITTE:
+{chunks_text}
+"""
+
+
+def call_gemini(prompt: str):
+    if not GEMINI_API_KEY:
+        return None
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0,
+            "responseMimeType": "application/json",
+        },
+    }
+    headers = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
+    try:
+        r = requests.post(GEMINI_URL, headers=headers, json=payload, timeout=45)
+        r.raise_for_status()
+        data = r.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        print(f"[GEMINI-FEHLER] {e}", file=sys.stderr)
+        return None
+
+
+def extract_with_ai(chunks: list, source_name: str) -> list:
+    relevant = [c for c in chunks if looks_like_secret_lair(c)]
+    if not relevant:
+        return []
+
+    chunks_text = "\n\n---\n\n".join(
+        f"UEBERSCHRIFT: {c['title']}\nTEXT: {c['text'][:1500]}" for c in relevant
+    )
+    prompt = GEMINI_PROMPT_TEMPLATE.format(chunks_text=chunks_text[:12000])
+
+    raw = call_gemini(prompt)
+    if raw is None:
+        print(f"[{source_name}] Gemini nicht verfuegbar - falle auf Regel-Erkennung zurueck.")
+        return extract_with_rules(chunks)
+
+    raw = raw.strip()
+    if raw.startswith("```"):
+        raw = re.sub(r"^```[a-zA-Z]*\n?", "", raw)
+        raw = re.sub(r"```$", "", raw).strip()
+
+    try:
+        items = json.loads(raw)
+        if not isinstance(items, list):
+            raise ValueError("Antwort ist kein JSON-Array")
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"[{source_name}] Gemini-Antwort nicht parsebar ({e}) - falle auf Regel-Erkennung zurueck.")
+        return extract_with_rules(chunks)
+
+    results = []
+    for item in items:
+        if not isinstance(item, dict) or not item.get("name"):
+            continue
+        price = item.get("price_usd")
+        try:
+            price = float(price) if price is not None else None
+        except (TypeError, ValueError):
+            price = None
+        results.append({
+            "name": str(item.get("name")).strip(),
+            "ip": item.get("ip") or "Magic: The Gathering",
+            "cards": item.get("cards"),
+            "price_usd": price,
+            "release_date": item.get("release_date"),
+            "release_date_text": item.get("release_date_text"),
+            "summary": item.get("summary"),
+        })
+    return results
 
 def load_json(path: Path, default):
     if path.exists():
@@ -332,7 +430,7 @@ def main() -> None:
             continue
 
         print(f"[{'INIT' if is_first_run else 'CHANGE'}] {name}: werte Abschnitte aus ...")
-        extracted = extract_with_rules(chunks)
+        extracted = extract_with_ai(chunks, name)
         changed = merge_events(events, extracted, name, url)
 
         for record, is_new in changed:
