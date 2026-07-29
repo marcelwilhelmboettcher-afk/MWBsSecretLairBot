@@ -7,7 +7,7 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20260729T053347Z
+DTSTAMP:20260729T064644Z
 DTSTART;VALUE=DATE:20260727
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
 DESCRIPTION:IP: Magic: The Gathering\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements
@@ -15,7 +15,7 @@ URL:https://magic.wizards.com/en/news/announcements
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20260729T053347Z
+DTSTAMP:20260729T064644Z
 DTSTART;VALUE=DATE:20260727
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
 DESCRIPTION:IP: Magic: The Gathering\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements
@@ -23,7 +23,7 @@ URL:https://magic.wizards.com/en/news/announcements
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20260729T053347Z
+DTSTAMP:20260729T064644Z
 DTSTART;VALUE=DATE:20260817
 SUMMARY:Secret Lair: A Marvelous Mathoms™ Superdrop
 DESCRIPTION:IP: Marvel\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements
