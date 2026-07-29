@@ -497,7 +497,8 @@ def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
     (Scryfall bezieht EUR-Preise offiziell von Cardmarket). Gibt ein leeres
     dict zurueck, wenn die Karte nicht gefunden wird oder ein Fehler
     auftritt - der Aufrufer behandelt das als 'keine Zusatzinfo verfuegbar'.
-    Bei einem 429 (Rate-Limit) wird automatisch mit Wartezeit wiederholt."""
+    Bei einem 429 (Rate-Limit) oder einem voruebergehenden Verbindungsfehler
+    wird automatisch mit kurzer Wartezeit wiederholt."""
     query = f'!"{card_name}" set:sld'
     data = None
     for attempt in range(max_retries + 1):
@@ -518,12 +519,20 @@ def fetch_scryfall_card_info(card_name: str, max_retries: int = 3) -> dict:
             resp.raise_for_status()
             data = resp.json()
             break
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries:
+                wait_s = 1.0 * (attempt + 1)
+                print(f"[SCRYFALL] Verbindungsfehler fuer '{card_name}' ({e}), warte {wait_s:.1f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                time.sleep(wait_s)
+                continue
+            print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
+            return {}
         except Exception as e:
             print(f"[SCRYFALL-FEHLER] {card_name}: {e}", file=sys.stderr)
             return {}
 
     if data is None:
-        print(f"[SCRYFALL-FEHLER] {card_name}: Rate-Limit auch nach {max_retries} Wiederholungen nicht geloest", file=sys.stderr)
+        print(f"[SCRYFALL-FEHLER] {card_name}: nach {max_retries} Wiederholungen weiterhin nicht erreichbar", file=sys.stderr)
         return {}
 
     candidates = data.get("data", [])
