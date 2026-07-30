@@ -107,7 +107,7 @@ TEXTABSCHNITTE:
 """
  
  
-def call_gemini(prompt: str):
+def call_gemini(prompt: str, max_retries: int = 2):
     if not GEMINI_API_KEY:
         return None
     payload = {
@@ -118,15 +118,28 @@ def call_gemini(prompt: str):
         },
     }
     headers = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
-    try:
-        r = requests.post(GEMINI_URL, headers=headers, json=payload, timeout=45)
-        r.raise_for_status()
-        data = r.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        print(f"[GEMINI-FEHLER] {e}", file=sys.stderr)
-        return None
- 
+    for attempt in range(max_retries + 1):
+        try:
+            r = requests.post(GEMINI_URL, headers=headers, json=payload, timeout=45)
+            if r.status_code in (429, 503) and attempt < max_retries:
+                wait_s = 5.0 * (attempt + 1)
+                print(f"[GEMINI] Temporaer nicht verfuegbar ({r.status_code}), warte {wait_s:.0f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                time.sleep(wait_s)
+                continue
+            r.raise_for_status()
+            data = r.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            if attempt < max_retries:
+                wait_s = 5.0 * (attempt + 1)
+                print(f"[GEMINI] Fehler ({e}), warte {wait_s:.0f}s (Versuch {attempt + 1}/{max_retries + 1}) ...", file=sys.stderr)
+                time.sleep(wait_s)
+                continue
+            print(f"[GEMINI-FEHLER] {e}", file=sys.stderr)
+            return None
+    return None
+
+
  
 def extract_with_ai(chunks: list, source_name: str) -> list:
     relevant = [c for c in chunks if looks_like_secret_lair(c)]
