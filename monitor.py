@@ -307,6 +307,12 @@ def find_date(text: str):
     return None, raw
  
  
+# Wizards' Secret-Lair-Store-Drops starten so gut wie immer um 9 a.m. PT,
+# auch wenn ein Ankuendigungsartikel keine explizite Uhrzeit nennt. Wird
+# als Fallback-Annahme genutzt (siehe merge_events) - transparent im
+# Kalendereintrag als "angenommen" gekennzeichnet, nicht als Fakt verkauft.
+DEFAULT_RELEASE_TIME_TEXT = "9:00 AM PT"
+
 US_TIMEZONE_ALIASES = {
     "PT": "America/Los_Angeles", "PST": "America/Los_Angeles", "PDT": "America/Los_Angeles",
     "ET": "America/New_York", "EST": "America/New_York", "EDT": "America/New_York",
@@ -713,8 +719,20 @@ def merge_events(events: dict, extracted: list, source_name: str, source_url: st
             "last_updated": int(time.time()),
         })
 
+        release_time_text = record.get("release_time_text")
+        release_time_is_assumed = False
+        if not release_time_text and record.get("release_date"):
+            # Wizards' Secret-Lair-Store-Drops starten so gut wie immer um
+            # 9 a.m. PT, auch wenn der Ankuendigungstext keine Uhrzeit nennt.
+            # Wird keine explizite Uhrzeit gefunden, nehmen wir das als
+            # Annahme an - transparent gekennzeichnet, nicht als Fakt.
+            release_time_text = DEFAULT_RELEASE_TIME_TEXT
+            release_time_is_assumed = True
+        record["release_time_text"] = release_time_text
+        record["release_time_is_assumed"] = release_time_is_assumed
+
         release_dt_utc = parse_release_datetime_utc(
-            record.get("release_date"), record.get("release_time_text")
+            record.get("release_date"), release_time_text
         )
         record["release_datetime_utc"] = release_dt_utc.isoformat() if release_dt_utc else None
 
@@ -797,6 +815,8 @@ def build_ics(events: dict) -> str:
             cards = ev.get("cards") or "Karten nicht automatisch erkannt - bitte Quelle pruefen"
 
         desc = f"IP: {ev.get('ip')}\\nPreis: {price}\\nKarten: {cards}\\nQuelle: {ev.get('source_url')}"
+        if has_precise_time and ev.get("release_time_is_assumed"):
+            desc += "\\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt"
         if ev.get("mtgstocks_url"):
             desc += f"\\nMTGStocks Value Breakdown: {ev['mtgstocks_url']}"
 
@@ -835,8 +855,8 @@ def build_ics(events: dict) -> str:
             lines += [
                 "BEGIN:VALARM",
                 "ACTION:DISPLAY",
-                "DESCRIPTION:Secret Lair Drop startet in 30 Minuten",
-                "TRIGGER:-PT30M",
+                "DESCRIPTION:Secret Lair Drop startet in 1 Stunde",
+                "TRIGGER:-PT60M",
                 "END:VALARM",
                 "BEGIN:VALARM",
                 "ACTION:DISPLAY",
