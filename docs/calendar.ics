@@ -7,26 +7,59 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20260730T080025Z
-DTSTART;VALUE=DATE:20260727
+DTSTAMP:20260730T113116Z
+DTSTART:20260727T160000Z
+DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
-DESCRIPTION:IP: Magic: The Gathering\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements
+DESCRIPTION:IP: Magic: The Gathering\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt
 URL:https://magic.wizards.com/en/news/announcements
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 1 Stunde
+TRIGGER:-PT60M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 15 Minuten
+TRIGGER:-PT15M
+END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20260730T080025Z
-DTSTART;VALUE=DATE:20260727
+DTSTAMP:20260730T113116Z
+DTSTART:20260727T160000Z
+DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
-DESCRIPTION:IP: Stardew Valley\nPreis: Preis unbekannt (Link pruefen)\nKarten: Stardew Valley, Wedding Ring ("Mermaid's Pendant" im Secret Lair), Dawn's Truce ("Pierre's Truce" im Secret Lair), Swords to Plowshares, Rites of Flourishing, Kynaios and Tiro of Meletis ("The Welcoming Committee" im Secret Lair), Sol Ring, Food ("Breakfast 7:00 AM" im Secret Lair), Crop Rotation, Fountainport ("Community Center" im Secret Lair), Homeward Path ("Pelican Town" im Secret Lair), Command Tower ("Tower of Rasmodius" im Secret Lair), Yavimaya, Cradle of Growth ("Valley Farmstead" im Secret Lair), Atsushi, the Blazing Sky ("Royal Serpent" im Secret Lair), Mitotic Slime ("Big Slime" im Secret Lair), Arcane Signet ("Earth's Mightiest Emblem" im Secret Lair), Sword of Forge and Frontier ("Galaxy Sword" im Secret Lair), Treasure Vault, Ooze, Treasure\nQuelle: https://magic.wizards.com/en/news/announcements\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 55.94 EUR Non-Foil / 42.02 EUR Foil\nMana Value (Stardew Valley: Welcome to Stardew Valley): https://www.manavalue.org/secret-lair/stardew-valley-welcome-to-stardew-valley\nMana Value (Stardew Valley: Life in Pelican Town): https://www.manavalue.org/secret-lair/stardew-valley-life-in-pelican-town\nMana Value (Stardew Valley: A Flicker in the Deep): https://www.manavalue.org/secret-lair/stardew-valley-a-flicker-in-the-deep
+DESCRIPTION:IP: Magic: The Gathering\nPreis: Preis unbekannt (Link pruefen)\nKarten: Stardew Valley, Wedding Ring ("Mermaid's Pendant" im Secret Lair), Dawn's Truce ("Pierre's Truce" im Secret Lair), Swords to Plowshares, Rites of Flourishing, Kynaios and Tiro of Meletis ("The Welcoming Committee" im Secret Lair), Sol Ring, Food ("Breakfast 7:00 AM" im Secret Lair), Crop Rotation, Fountainport ("Community Center" im Secret Lair), Homeward Path ("Pelican Town" im Secret Lair), Command Tower ("Tower of Rasmodius" im Secret Lair), Yavimaya, Cradle of Growth ("Valley Farmstead" im Secret Lair), Atsushi, the Blazing Sky ("Royal Serpent" im Secret Lair), Mitotic Slime ("Big Slime" im Secret Lair), Arcane Signet ("Earth's Mightiest Emblem" im Secret Lair), Sword of Forge and Frontier ("Galaxy Sword" im Secret Lair), Treasure Vault, Ooze, Treasure\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 55.94 EUR Non-Foil / 42.02 EUR Foil\nMana Value (Stardew Valley: Welcome to Stardew Valley): https://www.manavalue.org/secret-lair/stardew-valley-welcome-to-stardew-valley\nMana Value (Stardew Valley: Life in Pelican Town): https://www.manavalue.org/secret-lair/stardew-valley-life-in-pelican-town\nMana Value (Stardew Valley: A Flicker in the Deep): https://www.manavalue.org/secret-lair/stardew-valley-a-flicker-in-the-deep
 URL:https://magic.wizards.com/en/news/announcements
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 1 Stunde
+TRIGGER:-PT60M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 15 Minuten
+TRIGGER:-PT15M
+END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20260730T080025Z
-DTSTART;VALUE=DATE:20260817
+DTSTAMP:20260730T113116Z
+DTSTART:20260817T160000Z
+DTEND:20260817T170000Z
 SUMMARY:Secret Lair: A Marvelous Mathoms™ Superdrop
-DESCRIPTION:IP: The Hobbit\nPreis: Preis unbekannt (Link pruefen)\nKarten: Food ("Breakfast 7:00 AM" im Secret Lair), Cloudshift, Tocasia's Welcome ("Quite a Merry Gathering" im Secret Lair), Stony Silence, Imp's Mischief, Seize the Spoils\nQuelle: https://magic.wizards.com/en/news/announcements\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 7.83 EUR Non-Foil / 29.75 EUR Foil\nMana Value (The Hobbit: Second Breakfast and Beyond): https://www.manavalue.org/secret-lair/the-hobbit-second-breakfast-and-beyond\nMana Value (The Hobbit: Over the Edge of the Wild): https://www.manavalue.org/secret-lair/the-hobbit-over-the-edge-of-the-wild
+DESCRIPTION:IP: Marvel\nPreis: Preis unbekannt (Link pruefen)\nKarten: Food ("Breakfast 7:00 AM" im Secret Lair), Cloudshift, Tocasia's Welcome ("Quite a Merry Gathering" im Secret Lair), Stony Silence, Imp's Mischief, Seize the Spoils, Hammerhead, Maggia Boss, Undead Hand Ninja, Hex Magic, Tippy-Toe, Terrific Partner, Baxter Building, Previous Wild in Bloom, Next Their Magic Is Limitless, RSS feed\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 40.97 EUR Non-Foil / 98.92 EUR Foil\nMana Value (The Hobbit: Second Breakfast and Beyond): https://www.manavalue.org/secret-lair/the-hobbit-second-breakfast-and-beyond\nMana Value (The Hobbit: Over the Edge of the Wild): https://www.manavalue.org/secret-lair/the-hobbit-over-the-edge-of-the-wild\nMana Value (Marvel: Spinner Rack Specials): https://www.manavalue.org/secret-lair/marvel-spinner-rack-specials
 URL:https://magic.wizards.com/en/news/announcements
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 1 Stunde
+TRIGGER:-PT60M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 15 Minuten
+TRIGGER:-PT15M
+END:VALARM
 END:VEVENT
 END:VCALENDAR
