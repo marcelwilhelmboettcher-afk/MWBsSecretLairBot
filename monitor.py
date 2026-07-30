@@ -627,6 +627,52 @@ def format_card_name(real_name: str, info: dict) -> str:
     return real_name
 
 
+REMINDER_THRESHOLDS_MINUTES = [60, 15]
+
+
+def send_upcoming_drop_reminders(events: dict) -> bool:
+    """Prueft alle Events mit bekannter Uhrzeit darauf, ob sie in Kuerze
+    starten, und schickt Telegram-Erinnerungen (60 und 15 Minuten vorher).
+    Jede Erinnerung wird pro Event nur einmal verschickt (in "reminders_sent"
+    vermerkt), damit bei jedem 15-Minuten-Lauf keine Duplikate entstehen."""
+    any_sent = False
+    now = datetime.now(timezone.utc)
+
+    for key, ev in events.items():
+        release_dt_str = ev.get("release_datetime_utc")
+        if not release_dt_str:
+            continue
+        try:
+            release_dt = datetime.fromisoformat(release_dt_str)
+        except (ValueError, TypeError):
+            continue
+
+        sent_reminders = ev.setdefault("reminders_sent", [])
+
+        for minutes in REMINDER_THRESHOLDS_MINUTES:
+            reminder_key = f"{minutes}min"
+            if reminder_key in sent_reminders:
+                continue
+            trigger_time = release_dt - timedelta(minutes=minutes)
+            if trigger_time <= now < release_dt:
+                minutes_left = max(1, int((release_dt - now).total_seconds() // 60))
+                assumed_note = (
+                    " (Uhrzeit angenommen, nicht offiziell bestaetigt)"
+                    if ev.get("release_time_is_assumed") else ""
+                )
+                msg = (
+                    f"[ERINNERUNG] <b>{ev['name']}</b>\n"
+                    f"Startet in ca. {minutes_left} Minuten!{assumed_note}\n"
+                    f"{ev.get('source_url', '')}"
+                )
+                send_telegram(msg)
+                sent_reminders.append(reminder_key)
+                any_sent = True
+                print(f"[ERINNERUNG] {ev['name']}: {minutes}-Minuten-Hinweis verschickt")
+
+    return any_sent
+
+
 def enrich_with_manavalue(events: dict) -> bool:
     """Prueft den Mana-Value-RSS-Feed (europaeische Cardmarket-Preise) auf
     neue Drops und ergaenzt passende, bereits bekannte Events um Link(s) und
@@ -950,6 +996,9 @@ def main() -> None:
         any_new = True
 
     if enrich_with_manavalue(events):
+        any_new = True
+
+    if send_upcoming_drop_reminders(events):
         any_new = True
 
     save_json(state_path, state)
