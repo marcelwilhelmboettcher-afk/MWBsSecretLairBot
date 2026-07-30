@@ -49,7 +49,7 @@ jobs:
               echo "Nichts zu committen."
               break
             fi
-            git commit -m "Update Secret Lair data [skip ci]"
+            git commit -m "Update Secret Lair data"
 
             if git push; then
               echo "Push erfolgreich."
