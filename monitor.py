@@ -295,8 +295,12 @@ def clean_name(title: str) -> str:
  
  
 def find_ip(text: str) -> str:
+    text_lower = text.lower()
     for ip in KNOWN_IPS:
-        if ip.lower() in text.lower():
+        # \b sorgt fuer Wortgrenzen-Matching, damit z.B. "Marvelous" nicht
+        # faelschlich als Treffer fuer "Marvel" zaehlt.
+        pattern = r"\b" + re.escape(ip.lower()) + r"\b"
+        if re.search(pattern, text_lower):
             return ip
     return "Magic: The Gathering"
  
