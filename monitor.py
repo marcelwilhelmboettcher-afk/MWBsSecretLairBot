@@ -923,6 +923,7 @@ def main() -> None:
             continue
  
         print(f"[{'INIT' if is_first_run else 'CHANGE'}] {name}: werte Abschnitte aus ...")
+        time.sleep(4)  # Sicherheitsabstand, damit mehrere Quellen hintereinander nicht Geminis Minutenlimit reissen
         extracted = extract_with_ai(chunks, name)
         changed = merge_events(events, extracted, name, url)
  
