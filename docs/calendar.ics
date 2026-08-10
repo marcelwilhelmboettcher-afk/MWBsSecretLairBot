@@ -7,7 +7,7 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20260810T143359Z
+DTSTAMP:20260810T173939Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
@@ -26,7 +26,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20260810T143359Z
+DTSTAMP:20260810T173939Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
@@ -45,10 +45,10 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20260810T143359Z
+DTSTAMP:20260810T173939Z
 DTSTART:20260817T160000Z
 DTEND:20260817T170000Z
-SUMMARY:Secret Lair: A Marvelous Mathoms™ Superdrop
+SUMMARY:Secret Lair: A Marvelous Mathoms Superdrop
 DESCRIPTION:IP: The Hobbit\nPreis: Preis unbekannt (Link pruefen)\nKarten: Food ("Breakfast 7:00 AM" im Secret Lair), Cloudshift, Tocasia's Welcome ("Quite a Merry Gathering" im Secret Lair), Stony Silence, Imp's Mischief, Seize the Spoils, Defile ("Beholder's Enervation Ray" im Secret Lair), Diabolic Intent, Dread Return, Mirkwood Bats, Read the Bones\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 20.44 EUR Non-Foil / 47.47 EUR Foil\nMana Value (The Hobbit: Second Breakfast and Beyond): https://www.manavalue.org/secret-lair/the-hobbit-second-breakfast-and-beyond\nMana Value (The Hobbit: Over the Edge of the Wild): https://www.manavalue.org/secret-lair/the-hobbit-over-the-edge-of-the-wild\nMana Value (The Hobbit: Desolation): https://www.manavalue.org/secret-lair/the-hobbit-desolation
 URL:https://magic.wizards.com/en/news/announcements
 BEGIN:VALARM
