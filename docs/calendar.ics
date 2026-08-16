@@ -7,7 +7,7 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20260816T000006Z
+DTSTAMP:20260816T032739Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
@@ -26,7 +26,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20260816T000006Z
+DTSTAMP:20260816T032739Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
@@ -45,7 +45,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20260816T000006Z
+DTSTAMP:20260816T032739Z
 DTSTART:20260817T160000Z
 DTEND:20260817T170000Z
 SUMMARY:Secret Lair: A Marvelous Mathoms™ Superdrop
