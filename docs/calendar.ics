@@ -7,7 +7,7 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20260824T160618Z
+DTSTAMP:20260824T175200Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
@@ -26,7 +26,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20260824T160618Z
+DTSTAMP:20260824T175200Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
@@ -45,11 +45,30 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20260824T160618Z
+DTSTAMP:20260824T175200Z
 DTSTART:20260817T160000Z
 DTEND:20260817T170000Z
 SUMMARY:Secret Lair: A Marvelous Mathoms™ Superdrop
 DESCRIPTION:IP: The Hobbit\nPreis: Preis unbekannt (Link pruefen)\nKarten: Food ("Breakfast 7:00 AM" im Secret Lair), Cloudshift, Tocasia's Welcome ("Quite a Merry Gathering" im Secret Lair), Stony Silence, Imp's Mischief, Seize the Spoils, Defile ("Beholder's Enervation Ray" im Secret Lair), Diabolic Intent, Dread Return, Mirkwood Bats, Read the Bones, Arcane Heist  —, Contentious Plan, Curiosity, Solve the Equation, Windfall ("Slimer's Feast" im Secret Lair)\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nCardmarket-Wert (Singles gesamt, ca.) - teils geschaetzt aus anderer Auflage, da SL-Print noch ungelistet: 30.46 EUR Non-Foil / 53.91 EUR Foil\nMana Value (The Hobbit: Second Breakfast and Beyond): https://www.manavalue.org/secret-lair/the-hobbit-second-breakfast-and-beyond\nMana Value (The Hobbit: Over the Edge of the Wild): https://www.manavalue.org/secret-lair/the-hobbit-over-the-edge-of-the-wild\nMana Value (The Hobbit: Desolation): https://www.manavalue.org/secret-lair/the-hobbit-desolation\nMana Value (The Hobbit: He Who Walks Unseen): https://www.manavalue.org/secret-lair/the-hobbit-he-who-walks-unseen
+URL:https://magic.wizards.com/en/news/announcements
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 1 Stunde
+TRIGGER:-PT60M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 15 Minuten
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:the-most-powerful-superdrop-in-the-universe@secret-lair-tracker
+DTSTAMP:20260824T175200Z
+DTSTART:20260914T160000Z
+DTEND:20260914T170000Z
+SUMMARY:Secret Lair: The Most Powerful Superdrop in the Universe
+DESCRIPTION:IP: Masters of the Universe\nPreis: Preis unbekannt (Link pruefen)\nKarten: Karten nicht automatisch erkannt - bitte Quelle pruefen\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt
 URL:https://magic.wizards.com/en/news/announcements
 BEGIN:VALARM
 ACTION:DISPLAY
