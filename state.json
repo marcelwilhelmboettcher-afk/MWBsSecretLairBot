@@ -1,18 +1,18 @@
 {
   "Secret Lair – Drop Series (offizieller Store)": {
     "hash": "28d7e6f92d10c265ee3eeb94b48034a9840b4674c17c05f1212e0f6837f1cc0b",
-    "checked_at": 1790753371
+    "checked_at": 1790777180
   },
   "Secret Lair – Chaos Vault (offizieller Store)": {
     "hash": "223559bba31a96bad3a58cc65489c9b6497a9382d6fbd74450b9331585e3e3df",
-    "checked_at": 1790753371
+    "checked_at": 1790777181
   },
   "MTG Wizards News – Ankündigungen": {
     "hash": "a8741cc45da0f1296f1de6caee6a2b297e63940851ced51a2bdd12f5f9f029bd",
-    "checked_at": 1790753371
+    "checked_at": 1790777181
   },
   "ICv2 – Branchen-News (RSS, oft vor der offiziellen Ankündigung)": {
-    "hash": "43b21c3e5628bc6d41627f85e6c5072fadf2c6cf0c57bfc8b45d6fcaf0c7cb79",
-    "checked_at": 1790753372
+    "hash": "9e7ae4a3f9297fa877b971072df45651fbdc2083b9300dee33dc70d08330c7a0",
+    "checked_at": 1790777181
   }
 }
