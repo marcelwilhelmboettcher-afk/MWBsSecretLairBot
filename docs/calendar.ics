@@ -7,7 +7,7 @@ X-WR-CALNAME:Secret Lair Drops
 X-WR-TIMEZONE:Europe/Berlin
 BEGIN:VEVENT
 UID:instant-speed-action-awaits-at-magic-presents-all-leylines-eve@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Instant-Speed Action Awaits at Magic Presents: All Leylines' Eve
@@ -26,7 +26,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:superdrop-of-the-moonlight-jellies@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260727T160000Z
 DTEND:20260727T170000Z
 SUMMARY:Secret Lair: Superdrop of the Moonlight Jellies
@@ -45,7 +45,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-marvelous-mathoms-superdrop@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260817T160000Z
 DTEND:20260817T170000Z
 SUMMARY:Secret Lair: A Marvelous Mathoms Superdrop
@@ -64,7 +64,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:a-perfectly-normal-superdrop@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260831T160000Z
 DTEND:20260831T170000Z
 SUMMARY:Secret Lair: A Perfectly Normal Superdrop
@@ -83,7 +83,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:reality-fracture-play-booster-supply-may-be-tight-at-release@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260831T160000Z
 DTEND:20260831T170000Z
 SUMMARY:Secret Lair: Reality Fracture Play Booster Supply May Be Tight at Release
@@ -102,7 +102,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:chaos-vault-the-zeta-set-puts-the-playtest-in-your-hands@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260902T160000Z
 DTEND:20260902T170000Z
 SUMMARY:Secret Lair: Chaos Vault: The Zeta Set Puts the Playtest in Your Hands
@@ -121,7 +121,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:statement-on-today-s-the-zeta-set-sale@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260902T160000Z
 DTEND:20260902T170000Z
 SUMMARY:Secret Lair: Statement on Today's The Zeta Set Sale
@@ -140,7 +140,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:where-to-find-reality-fracture-previews@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260908T160000Z
 DTEND:20260908T170000Z
 SUMMARY:Secret Lair: Where to Find Reality Fracture Previews
@@ -159,7 +159,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:the-most-powerful-superdrop-in-the-universe@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260914T160000Z
 DTEND:20260914T170000Z
 SUMMARY:Secret Lair: The Most Powerful Superdrop in the Universe
@@ -178,7 +178,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:commander-deck-odds-and-ends@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260928T160000Z
 DTEND:20260928T170000Z
 SUMMARY:Secret Lair: Commander Deck: Odds and Ends
@@ -197,7 +197,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:commander-deck-odds-and-ends-decklist@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20260928T160000Z
 DTEND:20260928T170000Z
 SUMMARY:Secret Lair: Commander Deck: Odds and Ends Decklist
@@ -216,7 +216,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:reality-fracture-multiverse-reforged-commander-decklist@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261002T160000Z
 DTEND:20261002T170000Z
 SUMMARY:Secret Lair: Reality Fracture Multiverse Reforged Commander Decklist
@@ -235,7 +235,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:foundations-commander-decklists@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261002T160000Z
 DTEND:20261002T170000Z
 SUMMARY:Secret Lair: Foundations Commander Decklists
@@ -254,7 +254,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:join-us-for-october-s-wizards-of-the-coast-x-trans-lifeline-fundraising-stream@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261010T160000Z
 DTEND:20261010T170000Z
 SUMMARY:Secret Lair: Join us for October's Wizards of the Coast x Trans Lifeline Fundraising Stream
@@ -273,7 +273,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:corn-maze-superdrop@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261012T160000Z
 DTEND:20261012T170000Z
 SUMMARY:Secret Lair: Corn Maze Superdrop
@@ -292,7 +292,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:an-update-on-the-zeta-set-sale@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261012T160000Z
 DTEND:20261012T170000Z
 SUMMARY:Secret Lair: An Update on The Zeta Set Sale
@@ -311,7 +311,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:bring-two-new-secret-lair-drops-to-your-multiverse-with-reality-fracture@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261012T160000Z
 DTEND:20261012T170000Z
 SUMMARY:Secret Lair: Bring Two New Secret Lair Drops to Your Multiverse with Reality Fracture
@@ -330,7 +330,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:banned-and-restricted-announcement-october-12-2026@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261012T160000Z
 DTEND:20261012T170000Z
 SUMMARY:Secret Lair: Banned and Restricted Announcement – October 12\, 2026
@@ -349,7 +349,7 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:where-to-find-magic-the-gathering-star-trek-previews@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261020T160000Z
 DTEND:20261020T170000Z
 SUMMARY:Secret Lair: Where to Find Magic: The Gathering® | Star Trek™ Previews
@@ -368,11 +368,30 @@ END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 UID:countdown-kit-marvel-s-history-of-heroes@secret-lair-tracker
-DTSTAMP:20261019T130456Z
+DTSTAMP:20261019T192054Z
 DTSTART:20261102T170000Z
 DTEND:20261102T180000Z
 SUMMARY:Secret Lair: Countdown Kit: Marvel's History of Heroes
 DESCRIPTION:IP: Marvel\nPreis: Preis unbekannt (Link pruefen)\nKarten: Unstoppable Slasher Non-foil  Foil, Zombie Apocalypse Non-foil  Foil, Vogar, Necropolis Tyrant Non-foil — Foil, God-Eternal Bontu Non-foil  Foil, Wilhelt, the Rotcleaver Non-foil  Foil, Varina, Lich Queen Non-foil  Foil, Anger Non-foil  Foil, Gratuitous Violence Non-foil  Foil, Rishkar's Expertise Non-foil  Foil, Search for Tomorrow Non-foil  Foil, Unnatural Growth Non-foil  Foil, Happily Ever After Non-foil  Foil, True Love's Kiss Non-foil  Foil, Run Away Together Non-foil  Foil, Savor the Moment Non-foil  Foil, Grave Pact Non-foil  Foil, Thrill of Possibility Non-foil  Foil, Mystical Dispute Non-foil  Foil, An Offer You Can't Refuse Non-foil  Foil, Training Grounds Non-foil  Foil, Endrek Sahr, Master Breeder Non-foil  Foil, Bristly Bill, Spine Sower Non-foil  Foil, Hammerhead, Maggia Boss Non-foil  Foil, Undead Hand Ninja Non-foil  Foil, Hex Magic Non-foil  Foil, Tippy-Toe, Terrific Partner Non-foil  Foil, Baxter Building Non-foil  Foil, Previous Wild in Bloom, Next Their Magic Is Limitless\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nMana Value (Marvel: Zombies): https://www.manavalue.org/secret-lair/marvel-zombies\nMana Value (Marvel: Hulk Smash!): https://www.manavalue.org/secret-lair/marvel-hulk-smash\nMana Value (Marvel: True Believers in Love): https://www.manavalue.org/secret-lair/marvel-true-believers-in-love\nMana Value (Marvel: Dan Hipp): https://www.manavalue.org/secret-lair/marvel-dan-hipp\nMana Value (Marvel: Spinner Rack Specials): https://www.manavalue.org/secret-lair/marvel-spinner-rack-specials
+URL:https://magic.wizards.com/en/news/announcements
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 1 Stunde
+TRIGGER:-PT60M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Secret Lair Drop startet in 15 Minuten
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:mystery-booster-commander-edition-update-bulletin@secret-lair-tracker
+DTSTAMP:20261019T192054Z
+DTSTART:20261102T170000Z
+DTEND:20261102T180000Z
+SUMMARY:Secret Lair: Mystery Booster Commander Edition Update Bulletin
+DESCRIPTION:IP: Marvel\nPreis: Preis unbekannt (Link pruefen)\nKarten: Unstoppable Slasher Non-foil  Foil, Zombie Apocalypse Non-foil  Foil, Vogar, Necropolis Tyrant Non-foil  Foil, God-Eternal Bontu Non-foil  Foil, Wilhelt, the Rotcleaver Non-foil  Foil, Varina, Lich Queen Non-foil  Foil, Anger Non-foil  Foil, Gratuitous Violence Non-foil  Foil, Rishkar's Expertise Non-foil  Foil, Search for Tomorrow Non-foil  Foil, Unnatural Growth Non-foil  Foil, Happily Ever After Non-foil  Foil, True Love's Kiss Non-foil  Foil, Run Away Together Non-foil  Foil, Savor the Moment Non-foil  Foil, Grave Pact Non-foil  Foil, Thrill of Possibility Non-foil  Foil, Mystical Dispute Non-foil  Foil, An Offer You Can't Refuse Non-foil  Foil, Training Grounds Non-foil  Foil, Endrek Sahr, Master Breeder Non-foil  Foil, Bristly Bill, Spine Sower Non-foil  Foil, Hammerhead, Maggia Boss Non-foil  Foil, Undead Hand Ninja Non-foil  Foil, Hex Magic Non-foil  Foil, Tippy-Toe, Terrific Partner Non-foil  Foil, Baxter Building Non-foil  Foil, Previous Wild in Bloom, Next Their Magic Is Limitless\nQuelle: https://magic.wizards.com/en/news/announcements\nHinweis: Uhrzeit ist eine Annahme (Standard 9 a.m. PT), nicht offiziell im Artikel bestaetigt\nMana Value (Marvel: Zombies): https://www.manavalue.org/secret-lair/marvel-zombies\nMana Value (Marvel: Hulk Smash!): https://www.manavalue.org/secret-lair/marvel-hulk-smash\nMana Value (Marvel: True Believers in Love): https://www.manavalue.org/secret-lair/marvel-true-believers-in-love\nMana Value (Marvel: Dan Hipp): https://www.manavalue.org/secret-lair/marvel-dan-hipp\nMana Value (Marvel: Spinner Rack Specials): https://www.manavalue.org/secret-lair/marvel-spinner-rack-specials
 URL:https://magic.wizards.com/en/news/announcements
 BEGIN:VALARM
 ACTION:DISPLAY
